@@ -19,3 +19,8 @@ Thumbs.db
 
 # Output files
 *_notebooklm.md
+*.mp3
+*.m4a
+*.aac
+*.ogg
+*.wav

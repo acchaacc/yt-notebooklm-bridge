@@ -70,16 +70,25 @@ def extract_channel_info(channel_url):
     return None
 
 
-def extract_video_urls(channel_url, max_videos=None):
+def extract_video_urls(channel_url, max_videos=None, filter_keywords=None):
     """Extract all video URLs from a YouTube channel."""
-    cmd = [
-        "yt-dlp",
-        "--flat-playlist",
-        "--print", "%(url)s",
-        channel_url,
-    ]
+    if filter_keywords:
+        # Need titles for filtering
+        cmd = [
+            "yt-dlp",
+            "--flat-playlist",
+            "--print", "%(url)s\t%(title)s",
+            channel_url,
+        ]
+    else:
+        cmd = [
+            "yt-dlp",
+            "--flat-playlist",
+            "--print", "%(url)s",
+            channel_url,
+        ]
 
-    if max_videos:
+    if max_videos and not filter_keywords:
         cmd.extend(["--playlist-end", str(max_videos)])
 
     print(f"Extracting video URLs from: {channel_url}")
@@ -100,12 +109,28 @@ def extract_video_urls(channel_url, max_videos=None):
         urls = []
         for line in result.stdout.strip().split("\n"):
             line = line.strip()
-            if line:
-                # Ensure full YouTube URL format
-                if line.startswith("http"):
-                    urls.append(line)
-                else:
-                    urls.append(f"https://www.youtube.com/watch?v={line}")
+            if not line:
+                continue
+
+            if filter_keywords:
+                parts = line.split("\t", 1)
+                url_part = parts[0]
+                title_part = parts[1] if len(parts) > 1 else ""
+                # Check if any keyword matches the title
+                if not any(kw.lower() in title_part.lower() for kw in filter_keywords):
+                    continue
+            else:
+                url_part = line
+
+            # Ensure full YouTube URL format
+            if url_part.startswith("http"):
+                urls.append(url_part)
+            else:
+                urls.append(f"https://www.youtube.com/watch?v={url_part}")
+
+        # Apply max_videos after filtering
+        if filter_keywords and max_videos:
+            urls = urls[:max_videos]
 
         return urls
 
@@ -147,6 +172,12 @@ def main():
         default=None,
         help="Output file path (default: ~/Desktop/<channel_name>_notebooklm.md)",
     )
+    parser.add_argument(
+        "--filter",
+        type=str,
+        default=None,
+        help="Comma-separated keywords to filter videos by title",
+    )
 
     args = parser.parse_args()
 
@@ -165,8 +196,13 @@ def main():
         c if c.isalnum() or c in ("-", "_") else "_" for c in channel_name
     )
 
+    # Parse filter keywords
+    filter_keywords = None
+    if args.filter:
+        filter_keywords = [k.strip() for k in args.filter.split(",") if k.strip()]
+
     # Extract URLs
-    urls = extract_video_urls(args.channel_url, args.max_videos)
+    urls = extract_video_urls(args.channel_url, args.max_videos, filter_keywords)
 
     if not urls:
         print("No videos found. Please check the channel URL.")

@@ -1,14 +1,14 @@
 ---
-name: yt-notebooklm-bridge
+name: notebooklm-bridge
 description: >
-  Extracts all video URLs from a YouTube channel and saves as a space-separated
-  .md file for NotebookLM import. Supports @handle, /channel/, and /c/ URL formats
-  with optional video count limit. Use when user mentions "NotebookLM", "做成源",
-  "频道提取", "extract channel", "制作源文件", or provides a YouTube channel URL
-  with intent to import into NotebookLM.
+  Prepares multi-platform content as NotebookLM sources. Extracts YouTube channel
+  video URLs (space-separated .md file) and downloads Apple Podcasts episodes as
+  audio files. Supports keyword filtering for both platforms. Use when user mentions
+  "NotebookLM", "做成源", "制作源", "频道提取", "播客下载", "podcast download",
+  or provides YouTube channel / Apple Podcasts URLs with intent to import into NotebookLM.
 license: MIT
 compatibility: >
-  Requires Python 3.8+ and yt-dlp (brew install yt-dlp or pip install yt-dlp).
+  YouTube: requires Python 3.8+ and yt-dlp. Podcasts: requires Python 3.8+ only (zero deps).
 allowed-tools:
   - Bash
   - Read
@@ -17,71 +17,67 @@ allowed-tools:
   - AskUserQuestion
 metadata:
   author: acchaacc
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
-# YouTube → NotebookLM Source Generator
+# NotebookLM Source Bridge
+
+Prepares content from YouTube and Apple Podcasts as NotebookLM sources.
 
 ## Script Directory
 
 **Agent Execution Instructions**:
 1. Determine this SKILL.md file's directory path as `SKILL_DIR`
-2. Script path = `${SKILL_DIR}/scripts/extract_channel_urls.py`
+2. Detect source type from user's URL and run the appropriate script
 
-## Workflow
+## Source Type Detection
 
-### Step 1: Check Environment
+| URL Pattern | Script | Output |
+|-------------|--------|--------|
+| `youtube.com`, `youtu.be` | `extract_channel_urls.py` | `.md` file with space-separated URLs |
+| `podcasts.apple.com` or RSS feed | `extract_podcast_episodes.py` | Downloaded audio files |
 
-```bash
-yt-dlp --version
-```
-
-If not installed, run `brew install yt-dlp` or `pip install yt-dlp`.
-
-### Step 2: Get Channel URL
-
-If user hasn't provided a channel URL, ask for one. Supported formats:
-- `https://www.youtube.com/@ChannelName`
-- `https://www.youtube.com/channel/UCXXXXXXX`
-- `https://www.youtube.com/c/ChannelName`
-
-Ask if user wants to limit video count (optional).
-
-### Step 3: Extract Videos
+## Workflow: YouTube Channel
 
 ```bash
 python3 ${SKILL_DIR}/scripts/extract_channel_urls.py "<channel_url>"
-```
-
-With video limit:
-```bash
 python3 ${SKILL_DIR}/scripts/extract_channel_urls.py "<channel_url>" --max-videos 50
+python3 ${SKILL_DIR}/scripts/extract_channel_urls.py "<channel_url>" --filter "keyword1,keyword2"
 ```
 
-Custom output path:
+Output: `~/Desktop/<channel_name>_notebooklm.md` — user copies URLs into NotebookLM YouTube source input.
+
+## Workflow: Apple Podcasts
+
 ```bash
-python3 ${SKILL_DIR}/scripts/extract_channel_urls.py "<channel_url>" --output ~/Desktop/custom.md
+# List all episodes
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --list
+
+# Filter and list by keywords
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2" --list
+
+# Download filtered episodes
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2"
+
+# Limit download count
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2" --max-episodes 10
 ```
 
-Run `python3 ${SKILL_DIR}/scripts/extract_channel_urls.py --help` for full options.
+Output: `~/Desktop/<podcast_name>/` folder with audio files — user uploads to NotebookLM as audio sources.
 
-### Step 4: Report Results
+Run `--help` on either script for full CLI options.
 
-After extraction, report:
-- File path (default: `~/Desktop/<channel_name>_notebooklm.md`)
-- Number of videos extracted
+## Import Guide
 
-Then guide user to import into NotebookLM:
-1. Open the generated `.md` file
-2. Copy video URLs
-3. Go to [notebooklm.google.com](https://notebooklm.google.com)
-4. Click **"Add source"** → select **"YouTube"**
-5. Paste URLs one at a time into the YouTube input
+**YouTube** → NotebookLM "Add source" → "YouTube" → paste URLs one at a time
+
+**Podcasts** → NotebookLM "Add source" → upload audio files (max 200MB/file, 50 sources/notebook)
 
 ## Troubleshooting
 
 | Issue | Fix |
 |-------|-----|
 | yt-dlp not found | `brew install yt-dlp` or `pip install yt-dlp` |
-| No videos extracted | Verify URL is a channel page, not a single video |
-| Timeout | Use `--max-videos` to limit count |
+| No videos/episodes found | Check URL format |
+| Podcast RSS fetch failed | Try direct RSS feed URL instead of Apple Podcasts URL |
+| Audio file too large | NotebookLM limit is 200MB per file |
