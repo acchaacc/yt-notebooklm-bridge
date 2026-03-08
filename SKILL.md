@@ -86,15 +86,20 @@ yt-dlp --version
    文件格式: URL 以空格分隔
 
    导入 NotebookLM 步骤:
-   1. 打开 https://notebooklm.google.com
-   2. 创建新笔记本或打开现有笔记本
-   3. 点击 "Add source"（添加源）
-   4. 选择 "Copy and paste text"（复制粘贴文本）
-   5. 将文件内容粘贴到文本框中
-   6. NotebookLM 将自动识别并解析所有 YouTube 视频链接
+   1. 打开桌面上生成的 .md 文件
+   2. 复制文件中的视频 URL
+   3. 打开 https://notebooklm.google.com
+   4. 创建新笔记本或打开现有笔记本
+   5. 点击 "Add source"（添加源）
+   6. 选择 "YouTube"
+   7. 将复制的 YouTube 视频 URL 粘贴到输入框中
+   8. 逐条添加或批量添加视频链接
+
+   注意: NotebookLM 的 YouTube 源导入是通过 YouTube 链接输入，
+   每次粘贴一个视频 URL 进行添加。
    ```
 
-3. 提示用户也可以逐条添加视频 URL 作为单独源
+3. 提醒用户从 .md 文件中复制 URL，再逐条粘贴到 NotebookLM 的 YouTube 视频导入中
 
 ---
 
