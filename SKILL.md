@@ -1,10 +1,10 @@
 ---
 name: notebooklm-bridge
 description: >
-  Prepares multi-platform content as NotebookLM sources. Extracts YouTube channel
-  video URLs (space-separated .md file) and downloads Apple Podcasts episodes as
-  audio files. Supports keyword filtering for both platforms. Use when user mentions
-  "NotebookLM", "做成源", "制作源", "频道提取", "播客下载", "podcast download",
+  Prepares multi-platform content as NotebookLM sources. Extracts URLs from
+  YouTube channels and Apple Podcasts, saves as space-separated .md files for
+  NotebookLM import. Supports keyword filtering for both platforms. Use when user
+  mentions "NotebookLM", "做成源", "制作源", "频道提取", "播客提取",
   or provides YouTube channel / Apple Podcasts URLs with intent to import into NotebookLM.
 license: MIT
 compatibility: >
@@ -34,8 +34,8 @@ Prepares content from YouTube and Apple Podcasts as NotebookLM sources.
 
 | URL Pattern | Script | Output |
 |-------------|--------|--------|
-| `youtube.com`, `youtu.be` | `extract_channel_urls.py` | `.md` file with space-separated URLs |
-| `podcasts.apple.com` or RSS feed | `extract_podcast_episodes.py` | Downloaded audio files |
+| `youtube.com`, `youtu.be` | `extract_channel_urls.py` | `.md` file with space-separated video URLs |
+| `podcasts.apple.com` or RSS feed | `extract_podcast_episodes.py` | `.md` file with space-separated audio URLs |
 
 ## Workflow: YouTube Channel
 
@@ -50,20 +50,20 @@ Output: `~/Desktop/<channel_name>_notebooklm.md` — user copies URLs into Noteb
 ## Workflow: Apple Podcasts
 
 ```bash
-# List all episodes
-python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --list
+# Extract all episode URLs
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>"
 
-# Filter and list by keywords
-python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2" --list
-
-# Download filtered episodes
+# Filter by keywords and extract
 python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2"
 
-# Limit download count
+# List matching episodes without saving
+python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2" --list
+
+# Limit episode count
 python3 ${SKILL_DIR}/scripts/extract_podcast_episodes.py "<podcast_url>" --filter "keyword1,keyword2" --max-episodes 10
 ```
 
-Output: `~/Desktop/<podcast_name>/` folder with audio files — user uploads to NotebookLM as audio sources.
+Output: `~/Desktop/<podcast_name>_notebooklm.md` — audio URLs space-separated, same format as YouTube output.
 
 Run `--help` on either script for full CLI options.
 
@@ -71,7 +71,7 @@ Run `--help` on either script for full CLI options.
 
 **YouTube** → NotebookLM "Add source" → "YouTube" → paste URLs one at a time
 
-**Podcasts** → NotebookLM "Add source" → upload audio files (max 200MB/file, 50 sources/notebook)
+**Podcasts** → NotebookLM "Add source" → "Website" → paste Apple Podcasts episode URLs one at a time
 
 ## Troubleshooting
 
@@ -80,4 +80,4 @@ Run `--help` on either script for full CLI options.
 | yt-dlp not found | `brew install yt-dlp` or `pip install yt-dlp` |
 | No videos/episodes found | Check URL format |
 | Podcast RSS fetch failed | Try direct RSS feed URL instead of Apple Podcasts URL |
-| Audio file too large | NotebookLM limit is 200MB per file |
+| iTunes API returns max 200 episodes | Older episodes beyond 200 won't be included |

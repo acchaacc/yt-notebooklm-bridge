@@ -12,9 +12,9 @@
 - 支持 `--max-videos` 限制提取数量
 
 **Apple Podcasts 播客**
-- 从 Apple Podcasts URL 或 RSS 源自动提取全部节目
+- 从 Apple Podcasts URL 提取节目的 Apple Podcasts 页面 URL
 - 支持 `--filter` 按关键词筛选节目标题和描述
-- 直接下载音频文件，可上传到 NotebookLM 作为音频源
+- 支持 `--max-episodes` 限制提取数量
 - 零外部依赖（仅需 Python 标准库）
 
 ## 环境要求
@@ -41,16 +41,16 @@ python3 scripts/extract_channel_urls.py "https://www.youtube.com/@ChannelName" -
 ### Apple Podcasts
 
 ```bash
-# 列出全部节目
-python3 scripts/extract_podcast_episodes.py "https://podcasts.apple.com/us/podcast/xxx/id123456" --list
+# 提取全部节目 URL
+python3 scripts/extract_podcast_episodes.py "https://podcasts.apple.com/us/podcast/xxx/id123456"
 
 # 按关键词筛选并列出
 python3 scripts/extract_podcast_episodes.py "https://podcasts.apple.com/us/podcast/xxx/id123456" --filter "地缘,战争,中东" --list
 
-# 下载筛选后的节目
+# 筛选并保存为 .md 文件
 python3 scripts/extract_podcast_episodes.py "https://podcasts.apple.com/us/podcast/xxx/id123456" --filter "地缘,战争" --max-episodes 10
 
-# 也支持直接 RSS 源 URL
+# 也支持直接 RSS 源 URL（输出音频 URL）
 python3 scripts/extract_podcast_episodes.py "https://feed.example.com/podcast.xml"
 ```
 
@@ -71,9 +71,9 @@ python3 scripts/extract_podcast_episodes.py "https://feed.example.com/podcast.xm
 |------|------|
 | `<podcast_url>` | Apple Podcasts URL 或 RSS 源 URL（必须） |
 | `--filter <关键词>` | 逗号分隔的关键词，按标题和描述筛选 |
-| `--max-episodes <数量>` | 最大下载节目数（默认：全部） |
-| `--list` | 仅列出匹配节目，不下载 |
-| `--output <目录>` | 输出目录（默认：`~/Desktop/<播客名>/`） |
+| `--max-episodes <数量>` | 最大提取节目数（默认：全部） |
+| `--list` | 仅列出匹配节目，不保存文件 |
+| `--output <路径>` | 输出文件路径（默认：`~/Desktop/<播客名>_notebooklm.md`） |
 
 ## 导入 NotebookLM
 
@@ -83,10 +83,11 @@ python3 scripts/extract_podcast_episodes.py "https://feed.example.com/podcast.xm
 3. 打开 [notebooklm.google.com](https://notebooklm.google.com) → **Add source** → **YouTube**
 4. 逐条粘贴视频 URL
 
-**播客音频**
-1. 打开 [notebooklm.google.com](https://notebooklm.google.com) → **Add source** → 选择音频文件
-2. 从桌面文件夹上传下载的音频文件
-3. 限制：单文件最大 200MB，每个笔记本最多 50 个源
+**Apple Podcasts 播客**
+1. 打开桌面上生成的 `.md` 文件
+2. 复制 Apple Podcasts 节目 URL
+3. 打开 [notebooklm.google.com](https://notebooklm.google.com) → **Add source** → **Website**
+4. 逐条粘贴 Apple Podcasts URL
 
 ## Claude Code 技能
 
@@ -102,7 +103,7 @@ git clone https://github.com/acchaacc/notebooklm-bridge ~/.claude/skills/noteboo
 
 - "把这个频道做成源：https://www.youtube.com/@ChannelName"
 - "把 XX 播客做成 NotebookLM 源"
-- "下载这个播客的节目：https://podcasts.apple.com/..."
+- "提取这个播客的节目：https://podcasts.apple.com/..."
 - "提取 XX 频道关于 AI 的视频"
 - "制作 NotebookLM 源文件"
 
@@ -114,19 +115,19 @@ git clone https://github.com/acchaacc/notebooklm-bridge ~/.claude/skills/noteboo
   README.md                               ← 本文件
   scripts/
     extract_channel_urls.py               ← YouTube URL 提取
-    extract_podcast_episodes.py           ← 播客节目下载
+    extract_podcast_episodes.py           ← 播客 URL 提取
 ```
 
 ## 常见问题
 
-**播客下载需要多长时间？**
-取决于节目数量和网络速度，单集通常 30-60 秒。
+**iTunes API 最多返回多少集？**
+iTunes Lookup API 最多返回 200 集最新节目。超出部分不会被包含。
 
 **支持哪些播客平台？**
-支持 Apple Podcasts URL 和任何标准 RSS 源 URL。
+支持 Apple Podcasts URL（输出 Apple Podcasts 页面 URL）和任何标准 RSS 源 URL（输出音频 URL）。
 
-**音频文件太大怎么办？**
-NotebookLM 限制单文件 200MB，超出时脚本会发出警告。
+**输出格式是什么？**
+所有 URL 以空格分隔保存在 `.md` 文件中，方便复制粘贴到 NotebookLM。
 
 ## 故障排除
 
@@ -135,7 +136,7 @@ NotebookLM 限制单文件 200MB，超出时脚本会发出警告。
 | yt-dlp 未找到 | `brew install yt-dlp` 或 `pip install yt-dlp` |
 | 未提取到视频 | 检查 URL 是频道页面而非单个视频 |
 | 播客 RSS 获取失败 | 尝试直接使用 RSS 源 URL |
-| 音频下载超时 | 检查网络连接，重新运行（已下载的文件会自动跳过） |
+| iTunes API 最多 200 集 | 超出 200 集的老节目不会包含 |
 
 ## License
 
