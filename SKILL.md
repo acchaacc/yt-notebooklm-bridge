@@ -4,7 +4,7 @@ description: >
   NotebookLM 源制作工具。从 YouTube 频道提取所有视频地址，
   以空格分隔存储为 MD 文件，方便用户导入 NotebookLM 作为源文件。
   使用场景：当用户需要将 YouTube 频道内容批量导入 NotebookLM 时。
-  关键词：NotebookLM、YouTube、源文件、source、频道提取、channel extract
+  关键词：NotebookLM、YouTube、源文件、source、频道提取、channel extract、做成源、制作源
 allowed-tools:
   - Read
   - Write
@@ -18,9 +18,21 @@ model: claude-sonnet-4-5-20250514
 
 > **Installation**: If you're installing this skill from GitHub, please refer to [README.md](README.md#installation) for installation instructions.
 
+## 触发条件
+
+当用户提到以下内容时触发此技能：
+
+- "把 XX 频道做成源" / "把这个频道做成 NotebookLM 源"
+- "提取 XX 频道的视频" / "提取频道视频地址"
+- "XX 频道做成 NotebookLM 源文件"
+- "帮我把这个 YouTube 频道导入 NotebookLM"
+- "制作 NotebookLM 源" / "生成源文件"
+- 分享 YouTube 频道链接并提到"源"、"NotebookLM"、"提取"
+- "extract channel videos for NotebookLM"
+
 ## 功能说明
 
-从 YouTube 频道提取所有视频 URL，以空格分隔存储为 Markdown 文件，用户可直接将该文件导入 Google NotebookLM 作为源（Source），让 NotebookLM 自动解析频道内所有视频内容。
+从 YouTube 频道提取所有视频 URL，以空格分隔存储为 Markdown 文件，用户可直接将该文件内容复制粘贴到 Google NotebookLM 的 YouTube 源导入中。
 
 ## 工作流程
 

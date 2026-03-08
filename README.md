@@ -89,10 +89,12 @@ git clone https://github.com/acchaacc/yt-notebooklm-bridge ~/.claude/skills/yt-n
 
 安装后，在 Claude Code 中直接说：
 
-- 💬 "提取这个 YouTube 频道的所有视频给 NotebookLM：https://www.youtube.com/@ChannelName"
-- 💬 "Extract YouTube channel videos for NotebookLM: [URL]"
+- 💬 "把这个频道做成源：https://www.youtube.com/@ChannelName"
+- 💬 "把 XX 频道做成 NotebookLM 源"
+- 💬 "帮我把这个 YouTube 频道导入 NotebookLM"
+- 💬 "提取 XX 频道的所有视频地址"
+- 💬 "制作 NotebookLM 源文件"
 - 💬 "获取频道最近 50 个视频用于 NotebookLM"
-- 💬 "创建 NotebookLM 源文件"
 
 ## 🔧 工作原理
 
