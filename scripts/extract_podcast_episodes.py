@@ -276,13 +276,14 @@ def main():
         print("No matching episodes found.")
         sys.exit(0)
 
-    # For Apple Podcasts mode: separate mapped vs unmapped after filtering
+    # For Apple Podcasts mode: only keep episodes with Apple Podcasts URLs
     if not is_rss_url(args.podcast_url):
-        apple_eps = [ep for ep in episodes if "podcasts.apple.com" in ep["url"]]
-        other_eps = [ep for ep in episodes if "podcasts.apple.com" not in ep["url"]]
-        if other_eps:
-            print(f"  - {len(apple_eps)} with Apple Podcasts URLs")
-            print(f"  - {len(other_eps)} older episodes (audio URLs, no Apple Podcasts URL available)")
+        before = len(episodes)
+        episodes = [ep for ep in episodes if "podcasts.apple.com" in ep["url"]]
+        skipped = before - len(episodes)
+        if skipped:
+            print(f"  Skipped {skipped} older episodes without Apple Podcasts URLs")
+            print(f"  Kept {len(episodes)} episodes with Apple Podcasts URLs")
 
     # Limit count
     if args.max_episodes and len(episodes) > args.max_episodes:
