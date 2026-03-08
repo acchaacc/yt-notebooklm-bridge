@@ -2,7 +2,7 @@
 
 > 一键提取 YouTube 频道全部视频地址，生成可直接导入 NotebookLM 的源文件。
 
-基于 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 技能框架构建 — 可命令行独立运行，也可作为 AI Agent 技能直接调用。
+基于 [Agent Skills](https://agentskills.io/) 开放规范构建的 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 技能 — 可命令行独立运行，也可作为 AI Agent 技能直接调用。
 
 ## ✨ 功能特性
 
